@@ -1,14 +1,15 @@
 #!/bin/bash
 # Ejemplo de uso:
-#   ./run-lighthouse.sh mode=full
-#   ./run-lighthouse.sh mode=normal   (normal es el valor por defecto)
+#   ./run-lighthouse.sh mode=full outputType=json
+#   ./run-lighthouse.sh mode=normal outputType=html
+# Si no se especifica, los valores por defecto serán mode=normal y outputType=json
 
-# Valor por defecto para el modo
+# Valores por defecto
 MODE="normal"
+OUTPUT_TYPE="json"  # Opciones: json, html, csv (u otras que soporte Lighthouse)
 
-# Procesar argumentos para establecer el modo
-for arg in "$@"
-do
+# Procesar argumentos
+for arg in "$@"; do
   case $arg in
     mode=full)
       MODE="full"
@@ -18,11 +19,27 @@ do
       MODE="normal"
       shift
       ;;
+    outputType=html)
+      OUTPUT_TYPE="html"
+      shift
+      ;;
+    outputType=json)
+      OUTPUT_TYPE="json"
+      shift
+      ;;
+    outputType=csv)
+      OUTPUT_TYPE="csv"
+      shift
+      ;;
     *)
-      # Otras opciones se pueden agregar aquí
+      # Se ignoran otros parámetros
+      shift
       ;;
   esac
 done
+
+# Definir extensión en función del tipo de output
+EXTENSION="$OUTPUT_TYPE"
 
 # URL a auditar
 URL="http://localhost:3000"
@@ -33,6 +50,7 @@ BASE_OUTPUT_DIR="output/$TIMESTAMP"
 mkdir -p "$BASE_OUTPUT_DIR"
 
 echo "Modo: $MODE"
+echo "Tipo de salida: $OUTPUT_TYPE"
 echo "Carpeta base de salida: $BASE_OUTPUT_DIR"
 
 # Definir perfiles según el modo
@@ -54,15 +72,15 @@ for PROFILE in "${PROFILES[@]}"; do
   lighthouse "$URL" \
     --config-path="$MOBILE_CONFIG" \
     --chrome-flags="--headless" \
-    --output html \
-    --output-path="$OUTPUT_PROFILE_DIR/mobile-report.html"
+    --output "$OUTPUT_TYPE" \
+    --output-path="$OUTPUT_PROFILE_DIR/mobile-report.$EXTENSION"
   
   echo "Ejecutando Lighthouse para el perfil '$PROFILE' - Escritorio..."
   lighthouse "$URL" \
     --config-path="$DESKTOP_CONFIG" \
     --chrome-flags="--headless" \
-    --output html \
-    --output-path="$OUTPUT_PROFILE_DIR/desktop-report.html"
+    --output "$OUTPUT_TYPE" \
+    --output-path="$OUTPUT_PROFILE_DIR/desktop-report.$EXTENSION"
 done
 
 echo "Auditorías completadas. Revisa los reportes en: $BASE_OUTPUT_DIR"
