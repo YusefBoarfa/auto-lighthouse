@@ -1,0 +1,21 @@
+{
+  "extends": "lighthouse:default",
+  "settings": {
+    "throttlingMethod": "simulate",
+    "throttling": {
+      "rttMs": 300,
+      "throughputKbps": 1500,
+      "cpuSlowdownMultiplier": 1
+    },
+    "blockedUrlPatterns": ["*onetrust*"],
+    "emulatedFormFactor": "mobile",
+    "formFactor": "mobile",
+    "screenEmulation": {
+      "mobile": true,
+      "width": 360,
+      "height": 640,
+      "deviceScaleFactor": 2,
+      "disabled": false
+    }
+  }
+}
